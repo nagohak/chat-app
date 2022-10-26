@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/nagohak/chat-app/config"
 	"github.com/nagohak/chat-app/models"
 )
 
@@ -20,9 +20,10 @@ type WsServer struct {
 	users          []models.User
 	roomRepository models.RoomRepository
 	userRepository models.UserRepository
+	redis          *redis.Client
 }
 
-func NewWsServer(roomRepository models.RoomRepository, userRepository models.UserRepository) *WsServer {
+func NewWsServer(roomRepository models.RoomRepository, userRepository models.UserRepository, redis *redis.Client) *WsServer {
 	s := &WsServer{
 		clients:        make(map[*Client]bool),
 		register:       make(chan *Client),
@@ -31,6 +32,7 @@ func NewWsServer(roomRepository models.RoomRepository, userRepository models.Use
 		rooms:          make(map[*Room]bool),
 		roomRepository: roomRepository,
 		userRepository: userRepository,
+		redis:          redis,
 	}
 
 	users, err := userRepository.GetAllUsers()
@@ -63,7 +65,7 @@ func (server *WsServer) publishClientJoined(client *Client) {
 		Sender: client,
 	}
 
-	if err := config.Redis.Publish(ctx, PubSubGeneralChannel, message.encode()).Err(); err != nil {
+	if err := server.redis.Publish(ctx, PubSubGeneralChannel, message.encode()).Err(); err != nil {
 		log.Println(err)
 	}
 }
@@ -74,13 +76,13 @@ func (server *WsServer) publicClientLeft(client *Client) {
 		Sender: client,
 	}
 
-	if err := config.Redis.Publish(ctx, PubSubGeneralChannel, message.encode()).Err(); err != nil {
+	if err := server.redis.Publish(ctx, PubSubGeneralChannel, message.encode()).Err(); err != nil {
 		log.Println(err)
 	}
 }
 
 func (server *WsServer) listPubSubChannel() {
-	pubsub := config.Redis.Subscribe(ctx, PubSubGeneralChannel)
+	pubsub := server.redis.Subscribe(ctx, PubSubGeneralChannel)
 	ch := pubsub.Channel()
 
 	var message Message
@@ -199,7 +201,7 @@ func (server *WsServer) runRoomFromRepository(name string) *Room {
 		return nil
 	}
 	if dbRoom != nil {
-		r = NewRoom(dbRoom.GetName(), dbRoom.GetPrivate())
+		r = NewRoom(dbRoom.GetName(), dbRoom.GetPrivate(), server.redis)
 		r.ID, _ = uuid.Parse(dbRoom.GetId())
 
 		go r.RunRoom()
@@ -210,7 +212,7 @@ func (server *WsServer) runRoomFromRepository(name string) *Room {
 }
 
 func (server *WsServer) createRoom(name string, private bool) *Room {
-	r := NewRoom(name, private)
+	r := NewRoom(name, private, server.redis)
 
 	err := server.roomRepository.AddRoom(r)
 	if err != nil {

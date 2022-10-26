@@ -11,6 +11,7 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:8080", "http server address")
+var redisAddr = flag.String("redisAddr", "localhost:6379", "redis url string")
 
 func main() {
 	flag.Parse()
@@ -21,14 +22,17 @@ func main() {
 	}
 	defer db.Close()
 
-	config.NewRedis()
+	redis, err := config.NewRedis(*redisAddr)
+	if err != nil {
+		log.Fatalf("Can't initialize redis: %s", err)
+	}
 
 	fs := http.FileServer(http.Dir("./public"))
 
 	userRepository := &repository.UserRepository{Db: db}
 	roomRepository := &repository.RoomRepository{Db: db}
 
-	ws := NewWsServer(roomRepository, userRepository)
+	ws := NewWsServer(roomRepository, userRepository, redis)
 	go ws.Run()
 
 	api := &Api{UserRepository: userRepository}

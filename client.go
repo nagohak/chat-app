@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	ws "github.com/gorilla/websocket"
 	"github.com/nagohak/chat-app/auth"
-	"github.com/nagohak/chat-app/config"
 	"github.com/nagohak/chat-app/models"
 )
 
@@ -196,7 +195,7 @@ func (client *Client) inviteTargetUser(target models.User, room *Room) {
 		Sender:  client,
 	}
 
-	if err := config.Redis.Publish(ctx, PubSubGeneralChannel, message.encode()); err != nil {
+	if err := client.wsServer.redis.Publish(ctx, PubSubGeneralChannel, message.encode()); err != nil {
 		log.Println(err)
 	}
 }

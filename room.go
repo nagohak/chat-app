@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/nagohak/chat-app/config"
 )
 
 type Room struct {
@@ -17,6 +17,7 @@ type Room struct {
 	register   chan *Client
 	unregister chan *Client
 	broadcast  chan *Message
+	redis      *redis.Client
 }
 
 const welcomeMessage = "%s joined the room"
@@ -24,7 +25,7 @@ const leavedMessage = "%s leaved the room"
 
 var ctx = context.Background()
 
-func NewRoom(name string, private bool) *Room {
+func NewRoom(name string, private bool, redis *redis.Client) *Room {
 	return &Room{
 		ID:         uuid.New(),
 		Name:       name,
@@ -33,6 +34,7 @@ func NewRoom(name string, private bool) *Room {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		broadcast:  make(chan *Message),
+		redis:      redis,
 	}
 }
 
@@ -91,7 +93,7 @@ func (r *Room) notifyClientLeavedRoom(client *Client) {
 }
 
 func (r *Room) publishRoomMessage(message []byte) {
-	err := config.Redis.Publish(ctx, r.GetName(), message).Err()
+	err := r.redis.Publish(ctx, r.GetName(), message).Err()
 
 	if err != nil {
 		log.Println(err)
@@ -99,7 +101,7 @@ func (r *Room) publishRoomMessage(message []byte) {
 }
 
 func (r *Room) subscribeToRoomMessages() {
-	pubsub := config.Redis.Subscribe(ctx, r.GetName())
+	pubsub := r.redis.Subscribe(ctx, r.GetName())
 
 	ch := pubsub.Channel()
 
