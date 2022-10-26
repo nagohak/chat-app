@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	"github.com/nagohak/chat-app/config"
 )
 
 type Room struct {
@@ -17,7 +17,7 @@ type Room struct {
 	register   chan *Client
 	unregister chan *Client
 	broadcast  chan *Message
-	redis      *redis.Client
+	redis      *config.RedisClient
 }
 
 const welcomeMessage = "%s joined the room"
@@ -25,7 +25,7 @@ const leavedMessage = "%s leaved the room"
 
 var ctx = context.Background()
 
-func NewRoom(name string, private bool, redis *redis.Client) *Room {
+func NewRoom(name string, private bool, redis *config.RedisClient) *Room {
 	return &Room{
 		ID:         uuid.New(),
 		Name:       name,

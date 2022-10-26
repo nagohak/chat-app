@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	"github.com/nagohak/chat-app/config"
 	"github.com/nagohak/chat-app/models"
 )
 
@@ -20,10 +20,10 @@ type WsServer struct {
 	users          []models.User
 	roomRepository models.RoomRepository
 	userRepository models.UserRepository
-	redis          *redis.Client
+	redis          *config.RedisClient
 }
 
-func NewWsServer(roomRepository models.RoomRepository, userRepository models.UserRepository, redis *redis.Client) *WsServer {
+func NewWsServer(roomRepository models.RoomRepository, userRepository models.UserRepository, redis *config.RedisClient) *WsServer {
 	s := &WsServer{
 		clients:        make(map[*Client]bool),
 		register:       make(chan *Client),
