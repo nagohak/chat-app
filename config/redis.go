@@ -1,15 +1,24 @@
 package config
 
-import "github.com/go-redis/redis/v8"
+import (
+	"github.com/go-redis/redis/v8"
+)
 
-var Redis *redis.Client
+type RedisClient struct {
+	*redis.Client
+}
 
-func NewRedis() {
-	opt, err := redis.ParseURL("redis://localhost:6379/0")
+func NewRedis(addr string) (*RedisClient, error) {
+	redis := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: "",
+		DB:       0,
+	})
+
+	_, err := redis.Ping(redis.Context()).Result()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	redis := redis.NewClient(opt)
-	Redis = redis
+	return &RedisClient{redis}, nil
 }
