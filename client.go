@@ -195,7 +195,7 @@ func (client *Client) inviteTargetUser(target models.User, room *Room) {
 		Sender:  client,
 	}
 
-	if err := client.wsServer.redis.Publish(ctx, PubSubGeneralChannel, message.encode()); err != nil {
+	if err := client.wsServer.redis.Publish(ctx, PubSubGeneralChannel, message.encode()).Err(); err != nil {
 		log.Println(err)
 	}
 }
