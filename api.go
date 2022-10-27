@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/nagohak/chat-app/auth"
 	"github.com/nagohak/chat-app/repository"
 )
@@ -50,6 +52,30 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(token))
+}
+
+func AuthMiddleware(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, tok := r.URL.Query()["bearer"]
+		name, nok := r.URL.Query()["name"]
+
+		if tok && len(token) == 1 {
+			user, err := auth.ValidateToken(token[0])
+			if err != nil {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+			} else {
+				ctx := context.WithValue(r.Context(), auth.UserContextKey, user)
+				f(w, r.WithContext(ctx))
+			}
+		} else if nok && len(name) == 1 {
+			user := auth.NewUser{Id: uuid.New().String(), Name: name[0]}
+			ctx := context.WithValue(r.Context(), auth.UserContextKey, &user)
+			f(w, r.WithContext(ctx))
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Please login or provide name"))
+		}
+	}
 }
 
 func errorResponse(w http.ResponseWriter, msg string, status int) {

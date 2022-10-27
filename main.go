@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/nagohak/chat-app/auth"
 	"github.com/nagohak/chat-app/config"
 	"github.com/nagohak/chat-app/repository"
 )
@@ -38,7 +37,7 @@ func main() {
 	api := &Api{UserRepository: userRepository}
 
 	http.Handle("/", fs)
-	http.HandleFunc("/ws", auth.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/ws", AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(ws, w, r)
 	}))
 	http.HandleFunc("/api/login", api.Login)
