@@ -32,13 +32,13 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./public"))
 
-	userRepository := &repository.UserRepository{Db: db}
+	userRepository := repository.NewUserRepository(db)
 	roomRepository := &repository.RoomRepository{Db: db}
 
 	ws := NewWsServer(roomRepository, userRepository, redis)
 	go ws.Run()
 
-	api := api.NewApi(*userRepository, auth)
+	api := api.NewApi(userRepository, auth)
 
 	http.Handle("/", fs)
 	http.HandleFunc("/ws", api.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {

@@ -6,27 +6,39 @@ import (
 	"github.com/nagohak/chat-app/models"
 )
 
-type User struct {
+type user struct {
 	Id       string `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func (user *User) GetID() string {
+func (user *user) GetID() string {
 	return user.Id
 }
 
-func (user *User) GetName() string {
+func (user *user) GetName() string {
 	return user.Name
 }
 
-type UserRepository struct {
-	Db *sql.DB
+func (user *user) GetUsername() string {
+	return user.Username
 }
 
-func (repo *UserRepository) AddUser(user models.User) error {
-	stmt, err := repo.Db.Prepare("INSERT INTO users(id, name) values (?, ?)")
+func (user *user) GetPassword() string {
+	return user.GetPassword()
+}
+
+type userRepository struct {
+	db *sql.DB
+}
+
+func NewUserRepository(db *sql.DB) models.UserRepository {
+	return &userRepository{db: db}
+}
+
+func (repo *userRepository) AddUser(user models.User) error {
+	stmt, err := repo.db.Prepare("INSERT INTO users(id, name) values (?, ?)")
 	if err != nil {
 		return err
 	}
@@ -39,8 +51,8 @@ func (repo *UserRepository) AddUser(user models.User) error {
 	return nil
 }
 
-func (repo *UserRepository) RemoveUser(user models.User) error {
-	stmt, err := repo.Db.Prepare("DELETE FROM users WHERE id = ?")
+func (repo *userRepository) RemoveUser(user models.User) error {
+	stmt, err := repo.db.Prepare("DELETE FROM users WHERE id = ?")
 	if err != nil {
 		return err
 	}
@@ -53,10 +65,10 @@ func (repo *UserRepository) RemoveUser(user models.User) error {
 	return nil
 }
 
-func (repo *UserRepository) FindUserById(id string) (models.User, error) {
-	row := repo.Db.QueryRow("SELECT id, name FROM users WHERE id = ?")
+func (repo *userRepository) FindUserById(id string) (models.User, error) {
+	row := repo.db.QueryRow("SELECT id, name FROM users WHERE id = ?")
 
-	var user User
+	var user user
 
 	if err := row.Scan(&user.Id, &user.Name); err != nil {
 		if err == sql.ErrNoRows {
@@ -69,10 +81,10 @@ func (repo *UserRepository) FindUserById(id string) (models.User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) FindUserByUsername(username string) (*User, error) {
-	row := repo.Db.QueryRow("SELECT id, name, username, password FROM users WHERE username = ? LIMIT 1", username)
+func (repo *userRepository) FindUserByUsername(username string) (models.DbUser, error) {
+	row := repo.db.QueryRow("SELECT id, name, username, password FROM users WHERE username = ? LIMIT 1", username)
 
-	var user User
+	var user user
 
 	if err := row.Scan(&user.Id, &user.Name, &user.Username, &user.Password); err != nil {
 		if err == sql.ErrNoRows {
@@ -84,8 +96,8 @@ func (repo *UserRepository) FindUserByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) GetAllUsers() ([]models.User, error) {
-	rows, err := repo.Db.Query("SELECT id, name FROM users")
+func (repo *userRepository) GetAllUsers() ([]models.User, error) {
+	rows, err := repo.db.Query("SELECT id, name FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +106,7 @@ func (repo *UserRepository) GetAllUsers() ([]models.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var user User
+		var user user
 		rows.Scan(&user.Id, &user.Name)
 		users = append(users, &user)
 	}

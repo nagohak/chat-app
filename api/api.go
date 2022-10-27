@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nagohak/chat-app/auth"
-	"github.com/nagohak/chat-app/repository"
+	"github.com/nagohak/chat-app/models"
 )
 
 type LoginUser struct {
@@ -16,13 +16,13 @@ type LoginUser struct {
 }
 
 type Api struct {
-	userRepository *repository.UserRepository
+	userRepository models.UserRepository
 	auth           auth.Auth
 }
 
-func NewApi(userRepository repository.UserRepository, auth auth.Auth) *Api {
+func NewApi(userRepository models.UserRepository, auth auth.Auth) *Api {
 	return &Api{
-		userRepository: &userRepository,
+		userRepository: userRepository,
 		auth:           auth,
 	}
 }
@@ -47,7 +47,7 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok, err := api.auth.ComparePassword(user.Password, dbUser.Password)
+	ok, err := api.auth.ComparePassword(user.Password, dbUser.GetPassword())
 	if !ok || err != nil {
 		errorResponse(w, "Login failed", http.StatusForbidden)
 		return
