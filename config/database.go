@@ -9,7 +9,7 @@ import (
 	"github.com/nagohak/chat-app/auth"
 )
 
-func InitDB() (*sql.DB, error) {
+func InitDB(auth auth.Auth) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", ".chatdb.db")
 	if err != nil {
 		return nil, err

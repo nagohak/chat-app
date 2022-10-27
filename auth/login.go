@@ -1,5 +1,7 @@
 package auth
 
+import "github.com/nagohak/chat-app/models"
+
 type contextKey string
 
 const UserContextKey = contextKey("user")
@@ -15,4 +17,8 @@ func (user *NewUser) GetID() string {
 
 func (user *NewUser) GetName() string {
 	return user.Name
+}
+
+func (a *auth) NewUser(id string, name string) models.User {
+	return &NewUser{Id: id, Name: name}
 }

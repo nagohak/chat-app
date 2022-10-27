@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -16,7 +16,15 @@ type LoginUser struct {
 }
 
 type Api struct {
-	UserRepository *repository.UserRepository
+	userRepository *repository.UserRepository
+	auth           auth.Auth
+}
+
+func NewApi(userRepository repository.UserRepository, auth auth.Auth) *Api {
+	return &Api{
+		userRepository: &userRepository,
+		auth:           auth,
+	}
 }
 
 func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +36,7 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbUser, err := api.UserRepository.FindUserByUsername(user.Username)
+	dbUser, err := api.userRepository.FindUserByUsername(user.Username)
 	if err != nil {
 		errorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -39,13 +47,13 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ok, err := auth.ComparePassword(user.Password, dbUser.Password)
+	ok, err := api.auth.ComparePassword(user.Password, dbUser.Password)
 	if !ok || err != nil {
 		errorResponse(w, "Login failed", http.StatusForbidden)
 		return
 	}
 
-	token, err := auth.CreateToken(dbUser)
+	token, err := api.auth.CreateToken(dbUser)
 	if err != nil {
 		errorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -54,13 +62,13 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(token))
 }
 
-func AuthMiddleware(f http.HandlerFunc) http.HandlerFunc {
+func (api *Api) AuthMiddleware(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, tok := r.URL.Query()["bearer"]
 		name, nok := r.URL.Query()["name"]
 
 		if tok && len(token) == 1 {
-			user, err := auth.ValidateToken(token[0])
+			user, err := api.auth.ValidateToken(token[0])
 			if err != nil {
 				http.Error(w, "Forbidden", http.StatusForbidden)
 			} else {
@@ -68,8 +76,8 @@ func AuthMiddleware(f http.HandlerFunc) http.HandlerFunc {
 				f(w, r.WithContext(ctx))
 			}
 		} else if nok && len(name) == 1 {
-			user := auth.NewUser{Id: uuid.New().String(), Name: name[0]}
-			ctx := context.WithValue(r.Context(), auth.UserContextKey, &user)
+			user := api.auth.NewUser(uuid.New().String(), name[0])
+			ctx := context.WithValue(r.Context(), auth.UserContextKey, user)
 			f(w, r.WithContext(ctx))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)

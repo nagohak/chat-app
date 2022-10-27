@@ -25,7 +25,7 @@ func (c *Claims) GetName() string {
 	return c.Name
 }
 
-func CreateToken(user models.User) (string, error) {
+func (a *auth) CreateToken(user models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"Id":        user.GetID(),
 		"Name":      user.GetName(),
@@ -34,7 +34,7 @@ func CreateToken(user models.User) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
-func ValidateToken(tokenString string) (models.User, error) {
+func (a *auth) ValidateToken(tokenString string) (models.User, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])

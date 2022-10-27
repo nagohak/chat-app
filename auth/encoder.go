@@ -24,7 +24,7 @@ var config = &PasswordConfig{
 	keyLen:  32,
 }
 
-func GeneratePassword(password string) (string, error) {
+func (a *auth) GeneratePassword(password string) (string, error) {
 	salt := make([]byte, 16)
 	if _, err := rand.Read(salt); err != nil {
 		return "", err
@@ -40,7 +40,7 @@ func GeneratePassword(password string) (string, error) {
 	return fmt.Sprintf(format, argon2.Version, config.memory, config.time, config.threads, b64Salt, b64Hash), nil
 }
 
-func ComparePassword(password, hash string) (bool, error) {
+func (a *auth) ComparePassword(password, hash string) (bool, error) {
 
 	parts := strings.Split(hash, "$")
 
