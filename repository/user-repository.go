@@ -26,7 +26,7 @@ func (user *user) GetUsername() string {
 }
 
 func (user *user) GetPassword() string {
-	return user.GetPassword()
+	return user.Password
 }
 
 type userRepository struct {
