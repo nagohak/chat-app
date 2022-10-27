@@ -41,14 +41,28 @@ func InitDB(auth auth.Auth) (*sql.DB, error) {
 		return nil, err
 	}
 
-	password, _ := auth.GeneratePassword("password")
+	var username string
+	exists := true
+	row := db.QueryRow("SELECT username FROM users WHERE username = ? LIMIT 1", "bob")
 
-	sqlStmt = `INSERT into users (id, name, username, password) VALUES
+	if err := row.Scan(&username); err != nil {
+		if err != sql.ErrNoRows {
+			return nil, err
+		}
+		exists = false
+		err = nil
+	}
+
+	if !exists {
+		password, _ := auth.GeneratePassword("password")
+
+		sqlStmt = `INSERT into users (id, name, username, password) VALUES
 					('` + uuid.New().String() + `', 'Bob', 'bob','` + password + `')`
 
-	_, err = db.Exec(sqlStmt)
-	if err != nil {
-		return nil, err
+		_, err = db.Exec(sqlStmt)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return db, err
