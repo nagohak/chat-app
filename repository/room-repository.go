@@ -24,12 +24,16 @@ func (room *Room) GetPrivate() bool {
 	return room.Private
 }
 
-type RoomRepository struct {
-	Db *sql.DB
+type roomRepository struct {
+	db *sql.DB
 }
 
-func (repo *RoomRepository) AddRoom(room models.Room) error {
-	stmt, err := repo.Db.Prepare("INSERT INTO rooms(id, name, private) values (?,?,?)")
+func NewRoomRepository(db *sql.DB) models.RoomRepository {
+	return &roomRepository{db: db}
+}
+
+func (repo *roomRepository) AddRoom(room models.Room) error {
+	stmt, err := repo.db.Prepare("INSERT INTO rooms(id, name, private) values (?,?,?)")
 	if err != nil {
 		return err
 	}
@@ -42,8 +46,8 @@ func (repo *RoomRepository) AddRoom(room models.Room) error {
 	return nil
 }
 
-func (repo *RoomRepository) FindRoomByName(name string) (models.Room, error) {
-	row := repo.Db.QueryRow("SELECT id, name, private FROM rooms WHERE name = ? LIMIT 1", name)
+func (repo *roomRepository) FindRoomByName(name string) (models.Room, error) {
+	row := repo.db.QueryRow("SELECT id, name, private FROM rooms WHERE name = ? LIMIT 1", name)
 
 	var room Room
 

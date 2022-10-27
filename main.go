@@ -33,7 +33,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./public"))
 
 	userRepository := repository.NewUserRepository(db)
-	roomRepository := &repository.RoomRepository{Db: db}
+	roomRepository := repository.NewRoomRepository(db)
 
 	ws := NewWsServer(roomRepository, userRepository, redis)
 	go ws.Run()
