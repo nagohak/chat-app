@@ -65,11 +65,11 @@ func TestRegistrationOk(t *testing.T) {
 		"name": "` + user.Name + `",
 		"username": "` + user.Username + `",
 		"password": "` + user.Password + `",
-		"config": "` + user.Password + `"
+		"confirmation": "` + user.Password + `"
 	}`)
 
-	userRepo.On("FindUserByUsername").Return(nil, nil)
-	userRepo.On("AddDbUser").Return(user, nil)
+	userRepo.On("FindUserByUsername").Once().Return(nil, nil)
+	userRepo.On("AddDbUser").Once().Return(user, nil)
 
 	req, _ := http.NewRequest("POST", "/registration", bytes.NewBuffer(data))
 	handler := http.HandlerFunc(api.Registration)
@@ -91,7 +91,7 @@ func TestRegistrationUserExists(t *testing.T) {
 		"config": "` + user.Password + `"
 	}`)
 
-	userRepo.On("FindUserByUsername").Return(user, nil)
+	userRepo.On("FindUserByUsername").Once().Return(user, nil)
 
 	req, _ := http.NewRequest("POST", "/registration", bytes.NewBuffer(data))
 	handler := http.HandlerFunc(api.Registration)
@@ -111,10 +111,73 @@ func TestRegistrationPasswordDontMatch(t *testing.T) {
 		"config": "` + "qwerty" + `"
 	}`)
 
-	userRepo.On("FindUserByUsername").Return(user, nil)
+	userRepo.On("FindUserByUsername").Once().Return(user, nil)
 
 	req, _ := http.NewRequest("POST", "/registration", bytes.NewBuffer(data))
 	handler := http.HandlerFunc(api.Registration)
+	resp := httptest.NewRecorder()
+
+	handler.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusForbidden, resp.Code)
+}
+
+func TestLogin(t *testing.T) {
+	data := []byte(`{
+		"username": "` + user.Username + `",
+		"password": "` + user.Password + `"
+	}`)
+
+	pwd, _ := auth.NewAuth().GeneratePassword(user.Password)
+	loginUser := user
+	loginUser.Password = pwd
+	userRepo.On("FindUserByUsername").Once().Return(loginUser, nil)
+
+	req, _ := http.NewRequest("POST", "/login", bytes.NewBuffer(data))
+	handler := http.HandlerFunc(api.Login)
+	resp := httptest.NewRecorder()
+
+	handler.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+
+	token := resp.Body.String()
+	assert.Greater(t, len(token), 0)
+}
+
+func TestLoginInvalidUsername(t *testing.T) {
+	data := []byte(`{
+		"username": "` + user.Username + `",
+		"password": "` + user.Password + `"
+	}`)
+
+	pwd, _ := auth.NewAuth().GeneratePassword(user.Password)
+	loginUser := user
+	loginUser.Password = pwd
+	userRepo.On("FindUserByUsername").Once().Return(nil, nil)
+
+	req, _ := http.NewRequest("POST", "/login", bytes.NewBuffer(data))
+	handler := http.HandlerFunc(api.Login)
+	resp := httptest.NewRecorder()
+
+	handler.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusForbidden, resp.Code)
+}
+
+func TestLoginInvalidPassword(t *testing.T) {
+	pwd, _ := auth.NewAuth().GeneratePassword(user.Password)
+	loginUser := user
+	loginUser.Password = pwd
+
+	data := []byte(`{
+		"username": "` + user.Username + `",
+		"password": "` + user.Password + "1" + `"
+	}`)
+	userRepo.On("FindUserByUsername").Once().Return(loginUser, nil)
+
+	req, _ := http.NewRequest("POST", "/login", bytes.NewBuffer(data))
+	handler := http.HandlerFunc(api.Login)
 	resp := httptest.NewRecorder()
 
 	handler.ServeHTTP(resp, req)

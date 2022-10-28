@@ -50,13 +50,13 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if dbUser == nil {
-		errorResponse(w, "Login failed", http.StatusForbidden)
+		errorResponse(w, "Invalid username", http.StatusForbidden)
 		return
 	}
 
 	ok, err := api.auth.ComparePassword(user.Password, dbUser.GetPassword())
 	if !ok || err != nil {
-		errorResponse(w, "Login failed", http.StatusForbidden)
+		errorResponse(w, "Invalid password", http.StatusForbidden)
 		return
 	}
 
