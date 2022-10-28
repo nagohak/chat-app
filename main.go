@@ -45,6 +45,7 @@ func main() {
 		ServeWs(ws, w, r)
 	}))
 	http.HandleFunc("/api/login", api.Login)
+	http.HandleFunc("/api/registration", api.Registration)
 
 	log.Printf("Server is running on: %v", *addr)
 	log.Fatal(http.ListenAndServe(*addr, nil))

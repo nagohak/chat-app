@@ -15,6 +15,13 @@ type LoginUser struct {
 	Password string `json:"password"`
 }
 
+type RegisterUser struct {
+	Name         string `json:"name"`
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	Confirmation string `json:"confirmation"`
+}
+
 type Api struct {
 	userRepository models.UserRepository
 	auth           auth.Auth
@@ -50,6 +57,52 @@ func (api *Api) Login(w http.ResponseWriter, r *http.Request) {
 	ok, err := api.auth.ComparePassword(user.Password, dbUser.GetPassword())
 	if !ok || err != nil {
 		errorResponse(w, "Login failed", http.StatusForbidden)
+		return
+	}
+
+	token, err := api.auth.CreateToken(dbUser)
+	if err != nil {
+		errorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(token))
+}
+
+func (api *Api) Registration(w http.ResponseWriter, r *http.Request) {
+	var user RegisterUser
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		errorResponse(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	dbUser, err := api.userRepository.FindUserByUsername(user.Username)
+	if err != nil {
+		errorResponse(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if dbUser != nil {
+		errorResponse(w, "Username already exists", http.StatusForbidden)
+		return
+	}
+
+	if user.Confirmation != user.Password {
+		errorResponse(w, "Password don't match", http.StatusForbidden)
+		return
+	}
+
+	password, err := api.auth.GeneratePassword(user.Password)
+	if err != nil {
+		errorResponse(w, "Registration failed", http.StatusInternalServerError)
+		return
+	}
+
+	dbUser, err = api.userRepository.AddDbUser(uuid.New(), user.Name, user.Username, password)
+	if err != nil {
+		errorResponse(w, "Regisration  failed", http.StatusInternalServerError)
 		return
 	}
 
