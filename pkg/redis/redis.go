@@ -8,9 +8,9 @@ type Client struct {
 	*redis.Client
 }
 
-func New(addr string) (*Client, error) {
+func New(host string, port string) (*Client, error) {
 	redis := redis.NewClient(&redis.Options{
-		Addr:     addr,
+		Addr:     host + ":" + port,
 		Password: "",
 		DB:       0,
 	})

@@ -1,8 +1,5 @@
-include .env
-export
-
 dcu: ### Run docker-compose
-	docker-compose up --build -d chat
+	docker-compose --env-file .env up --build -d chat
 .PHONY: dcu
 
 dcd: ### Down docker-compose

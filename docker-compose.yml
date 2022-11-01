@@ -5,13 +5,13 @@ services:
     image: "redis:alpine"
     container_name: redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
 
   chat:
     build: .
     container_name: chat
     image: chat
     ports:
-      - "8080:8080"
+      - "${HTTP_PORT}:${HTTP_PORT}"
     depends_on:
       - redis

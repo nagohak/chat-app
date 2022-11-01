@@ -15,7 +15,8 @@ type (
 		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
 	}
 	Redis struct {
-		Url string `env-required:"true" yaml:"url" env:"REDIS_URL"`
+		Host string `env-required:"true" yaml:"host" env:"REDIS_HOST"`
+		Port string `env-required:"true" yaml:"port" env:"REDIS_PORT"`
 	}
 )
 

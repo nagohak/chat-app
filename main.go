@@ -26,7 +26,7 @@ func main() {
 	}
 	defer db.Close()
 
-	redis, err := redis.New(cfg.Redis.Url)
+	redis, err := redis.New(cfg.Redis.Host, cfg.Redis.Port)
 	if err != nil {
 		log.Fatalf("Can't initialize redis: %s", err)
 	}
