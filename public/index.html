@@ -33,7 +33,7 @@
         <div class="row justify-content-center h-100">
           <div class="col-12 form" v-if="!ws">
             
-            <h2>Anonymous log-in</h2>
+            <h2>Login anonymously</h2>
             <div class="input-group">
               <input
                 v-model="user.name"
@@ -48,7 +48,7 @@
               </div>
             </div>
 
-            <h2>Registered users</h2>
+            <h2>Login</h2>
 
             <div class="input-group">
                 <input v-model="user.username" class="form-control username" placeholder="username"></input>
@@ -71,7 +71,7 @@
               <div class="col-2 card profile" v-for="user in users" :key="user.id">
                 <div class="card-header">{{user.name}}</div>
                 <div class="card-body">
-                    <button class="btn btn-primary" @click="joinPrivateRoom(user)">Send Message</button>
+                    <button class="btn btn-primary" @click="joinPrivateRoom(user)">Private Message</button>
                 </div>
               </div>
             </div>

@@ -2,9 +2,9 @@ body,
 html {
   height: 100%;
   margin: 0;
-  background: #0310ea;
-  background: -webkit-linear-gradient(to right, #560a86, #7122fa, #560a86);
-  background: linear-gradient(to right, #560a86, #7122fa, #560a86);
+  background: #0093e9;
+  background: -webkit-linear-gradient(to bottom, #0093e9, #80d0c7);
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
 }
 
 #app {
@@ -29,7 +29,7 @@ html {
 }
 
 .card.profile {
-  height:150px;
+  height:120px;
   margin: 15px;
 }
 
@@ -69,7 +69,7 @@ html {
 }
 
 .type_msg {
-  background-color: rgba(86, 10, 134, 0.6);
+  background-color: #80d0c7;
   border: 0;
   color: white;
   height: 60px;
@@ -78,7 +78,7 @@ html {
 .type_msg:focus {
   box-shadow: none;
   outline: 0px;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: #A9EBE3;
 }
 
 .send_btn {
