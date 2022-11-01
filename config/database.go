@@ -4,13 +4,13 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 
 	"github.com/nagohak/chat-app/auth"
 )
 
 func InitDB(auth auth.Auth) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", ".chatdb.db")
+	db, err := sql.Open("sqlite", ".chatdb.db")
 	if err != nil {
 		return nil, err
 	}

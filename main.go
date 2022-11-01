@@ -11,8 +11,9 @@ import (
 	"github.com/nagohak/chat-app/repository"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http server address")
-var redisAddr = flag.String("redisAddr", "localhost:6379", "redis url string")
+// TODO: use env vars
+var addr = flag.String("port", "8080", "http server port")
+var redisAddr = flag.String("redisAddr", "redis:6379", "redis url string")
 
 func main() {
 	flag.Parse()
@@ -48,5 +49,5 @@ func main() {
 	http.HandleFunc("/api/registration", api.Registration)
 
 	log.Printf("Server is running on: %v", *addr)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(":"+*addr, nil))
 }
