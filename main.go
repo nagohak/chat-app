@@ -1,23 +1,22 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"net/http"
 
 	"github.com/nagohak/chat-app/api"
 	"github.com/nagohak/chat-app/auth"
+	"github.com/nagohak/chat-app/config"
 	"github.com/nagohak/chat-app/database"
 	"github.com/nagohak/chat-app/pkg/redis"
 	"github.com/nagohak/chat-app/repository"
 )
 
-// TODO: use env vars
-var addr = flag.String("port", "8080", "http server port")
-var redisAddr = flag.String("redisAddr", "redis:6379", "redis url string")
-
 func main() {
-	flag.Parse()
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Can't initialize config: %s", err)
+	}
 
 	auth := auth.NewAuth()
 
@@ -27,7 +26,7 @@ func main() {
 	}
 	defer db.Close()
 
-	redis, err := redis.New(*redisAddr)
+	redis, err := redis.New(cfg.Redis.Url)
 	if err != nil {
 		log.Fatalf("Can't initialize redis: %s", err)
 	}
@@ -49,6 +48,6 @@ func main() {
 	http.HandleFunc("/api/login", api.Login)
 	http.HandleFunc("/api/registration", api.Registration)
 
-	log.Printf("Server is running on: %v", *addr)
-	log.Fatal(http.ListenAndServe(":"+*addr, nil))
+	log.Printf("Server is running on: %v", cfg.Http.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.Http.Port, nil))
 }
