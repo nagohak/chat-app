@@ -1,14 +1,14 @@
-package config
+package redis
 
 import (
 	"github.com/go-redis/redis/v8"
 )
 
-type RedisClient struct {
+type Client struct {
 	*redis.Client
 }
 
-func NewRedis(addr string) (*RedisClient, error) {
+func New(addr string) (*Client, error) {
 	redis := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: "",
@@ -20,5 +20,5 @@ func NewRedis(addr string) (*RedisClient, error) {
 		return nil, err
 	}
 
-	return &RedisClient{redis}, nil
+	return &Client{redis}, nil
 }

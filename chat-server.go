@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	"github.com/nagohak/chat-app/config"
 	"github.com/nagohak/chat-app/models"
+	"github.com/nagohak/chat-app/pkg/redis"
 )
 
 const PubSubGeneralChannel = "general"
@@ -20,10 +20,10 @@ type WsServer struct {
 	users          []models.User
 	roomRepository models.RoomRepository
 	userRepository models.UserRepository
-	redis          *config.RedisClient
+	redis          *redis.Client
 }
 
-func NewWsServer(roomRepository models.RoomRepository, userRepository models.UserRepository, redis *config.RedisClient) *WsServer {
+func NewWsServer(roomRepository models.RoomRepository, userRepository models.UserRepository, redis *redis.Client) *WsServer {
 	s := &WsServer{
 		clients:        make(map[*Client]bool),
 		register:       make(chan *Client),

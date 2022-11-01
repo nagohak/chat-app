@@ -7,7 +7,8 @@ import (
 
 	"github.com/nagohak/chat-app/api"
 	"github.com/nagohak/chat-app/auth"
-	"github.com/nagohak/chat-app/config"
+	"github.com/nagohak/chat-app/database"
+	"github.com/nagohak/chat-app/pkg/redis"
 	"github.com/nagohak/chat-app/repository"
 )
 
@@ -20,13 +21,13 @@ func main() {
 
 	auth := auth.NewAuth()
 
-	db, err := config.InitDB(auth)
+	db, err := database.New(auth)
 	if err != nil {
 		log.Fatalf("Can't initialize database: %s", err)
 	}
 	defer db.Close()
 
-	redis, err := config.NewRedis(*redisAddr)
+	redis, err := redis.New(*redisAddr)
 	if err != nil {
 		log.Fatalf("Can't initialize redis: %s", err)
 	}

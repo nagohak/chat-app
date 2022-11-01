@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	"github.com/nagohak/chat-app/config"
+	"github.com/nagohak/chat-app/pkg/redis"
 )
 
 type Room struct {
@@ -17,7 +17,7 @@ type Room struct {
 	register   chan *Client
 	unregister chan *Client
 	broadcast  chan *Message
-	redis      *config.RedisClient
+	redis      *redis.Client
 }
 
 const welcomeMessage = "%s joined the room"
@@ -25,7 +25,7 @@ const leavedMessage = "%s leaved the room"
 
 var ctx = context.Background()
 
-func NewRoom(name string, private bool, redis *config.RedisClient) *Room {
+func NewRoom(name string, private bool, redis *redis.Client) *Room {
 	return &Room{
 		ID:         uuid.New(),
 		Name:       name,

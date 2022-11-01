@@ -1,4 +1,4 @@
-package config
+package database
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 	"github.com/nagohak/chat-app/auth"
 )
 
-func InitDB(auth auth.Auth) (*sql.DB, error) {
+func New(auth auth.Auth) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", ".chatdb.db")
 	if err != nil {
 		return nil, err
