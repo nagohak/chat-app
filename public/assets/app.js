@@ -9,7 +9,14 @@ var app = new Vue({
       name: "",
       username: "",
       password: "",
+      confirmation: "",
       token: ""
+    },
+    newUser: {
+      name: "",
+      username: "",
+      password: "",
+      confirmation: "",
     },
     users: [],
     initialReconnectDelay: 1000,
@@ -36,6 +43,21 @@ var app = new Vue({
 
       } catch (e) {
         this.loginError = "Login failed";
+        console.log(e);
+      }
+    },
+    async registration() {
+      try {
+        const result = await axios.post("http://" + location.host + "/api/registration", this.newUser);
+        if (result.data.errror !== "undefined" && result.data.error) {
+          this.loginError = "Registration failed";
+        } else {
+          this.user.token = result.data;
+          this.connectToWebsocket();
+        }
+
+      } catch (e) {
+        this.loginError = "Registration failed";
         console.log(e);
       }
     },

@@ -60,6 +60,20 @@
                 </div>
             </div>
 
+            <h2>Registration</h2>
+
+            <div class="input-group">
+                <input v-model="newUser.username" class="form-control username" placeholder="username"></input>
+                <input v-model="newUser.name" class="form-control name" placeholder="name"></input>
+                <input v-model="newUser.password" type="password" class="form-control password" placeholder="password"></input>
+                <input v-model="newUser.confirmation" type="password" class="form-control confirmation" placeholder="confirmation" @keyup.enter.exact="registration" ></input>
+                <div class="input-group-append">
+                    <span class="input-group-text send_btn" @click="registration">
+                    >
+                    </span>
+                </div>
+            </div>
+
             <!-- <div class="alert alert-danger" role="alert" v-show="loginError"> -->
               <!-- {{loginError}} -->
             <!-- </div> -->
