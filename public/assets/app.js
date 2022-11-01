@@ -24,10 +24,6 @@ var app = new Vue({
     connect() {
       this.connectToWebsocket();
     },
-    loginSmogin() {
-
-      console.log("LOGIN");
-    },
     async login() {
       try {
         const result = await axios.post("http://" + location.host + "/api/login", this.user);
@@ -42,7 +38,6 @@ var app = new Vue({
         this.loginError = "Login failed";
         console.log(e);
       }
-      console.log("LOGIN");
     },
     connectToWebsocket() {
       if (this.user.token != "") {
