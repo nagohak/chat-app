@@ -7,7 +7,7 @@ import (
 	"github.com/nagohak/chat-app/api"
 	"github.com/nagohak/chat-app/auth"
 	"github.com/nagohak/chat-app/config"
-	"github.com/nagohak/chat-app/database"
+	"github.com/nagohak/chat-app/pkg/postgres"
 	"github.com/nagohak/chat-app/pkg/redis"
 	"github.com/nagohak/chat-app/repository"
 )
@@ -20,7 +20,7 @@ func main() {
 
 	auth := auth.NewAuth()
 
-	db, err := database.New(&database.Options{
+	db, err := postgres.New(&postgres.Options{
 		Host:     cfg.Postgres.Host,
 		Port:     cfg.Postgres.Port,
 		Db:       cfg.Postgres.Db,
@@ -32,7 +32,7 @@ func main() {
 	}
 	defer db.Close()
 
-	if err = database.MigrationUp(db); err != nil {
+	if err = postgres.MigrationUp(db); err != nil {
 		log.Fatalf("Can't migrate database: %s", err)
 	}
 
