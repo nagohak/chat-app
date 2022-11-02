@@ -39,7 +39,7 @@ func NewUserRepository(db *sql.DB) models.UserRepository {
 }
 
 func (repo *userRepository) AddUser(user models.User) error {
-	stmt, err := repo.db.Prepare("INSERT INTO users(id, name) values (?, ?)")
+	stmt, err := repo.db.Prepare("INSERT INTO users(id, name) values ($1, $2)")
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (repo *userRepository) AddDbUser(id uuid.UUID, name, username, password str
 		Password: password,
 	}
 
-	stmt, err := repo.db.Prepare("INSERT INTO users(id, name, username, password) values (?, ?, ?, ?)")
+	stmt, err := repo.db.Prepare("INSERT INTO users(id, name, username, password) values ($1, $2, $3, $4)")
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (repo *userRepository) AddDbUser(id uuid.UUID, name, username, password str
 }
 
 func (repo *userRepository) RemoveUser(user models.User) error {
-	stmt, err := repo.db.Prepare("DELETE FROM users WHERE id = ?")
+	stmt, err := repo.db.Prepare("DELETE FROM users WHERE id = $1")
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (repo *userRepository) RemoveUser(user models.User) error {
 }
 
 func (repo *userRepository) FindUserById(id string) (models.User, error) {
-	row := repo.db.QueryRow("SELECT id, name FROM users WHERE id = ?")
+	row := repo.db.QueryRow("SELECT id, name FROM users WHERE id = $1")
 
 	var user User
 
@@ -104,7 +104,7 @@ func (repo *userRepository) FindUserById(id string) (models.User, error) {
 }
 
 func (repo *userRepository) FindUserByUsername(username string) (models.DbUser, error) {
-	row := repo.db.QueryRow("SELECT id, name, username, password FROM users WHERE username = ? LIMIT 1", username)
+	row := repo.db.QueryRow("SELECT id, name, username, password FROM users WHERE username = $1 LIMIT 1", username)
 
 	var user User
 

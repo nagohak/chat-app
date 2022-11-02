@@ -12,7 +12,6 @@ services:
       POSTGRES_DB: 'postgres'
     ports:
       - 5432:5432
-
   redis:
     image: "redis:alpine"
     container_name: redis

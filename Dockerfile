@@ -17,4 +17,5 @@ FROM scratch
 COPY --from=builder /app/config /config
 COPY --from=builder /bin/app /app
 COPY --from=builder /app/public /public
+COPY --from=builder /app/migrations /migrations
 CMD ["/app"]

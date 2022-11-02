@@ -33,7 +33,7 @@ func NewRoomRepository(db *sql.DB) models.RoomRepository {
 }
 
 func (repo *roomRepository) AddRoom(room models.Room) error {
-	stmt, err := repo.db.Prepare("INSERT INTO rooms(id, name, private) values (?,?,?)")
+	stmt, err := repo.db.Prepare("INSERT INTO rooms(id, name, private) values ($1,$2,$3)")
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (repo *roomRepository) AddRoom(room models.Room) error {
 }
 
 func (repo *roomRepository) FindRoomByName(name string) (models.Room, error) {
-	row := repo.db.QueryRow("SELECT id, name, private FROM rooms WHERE name = ? LIMIT 1", name)
+	row := repo.db.QueryRow("SELECT id, name, private FROM rooms WHERE name = $1 LIMIT 1", name)
 
 	var room Room
 

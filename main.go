@@ -32,6 +32,10 @@ func main() {
 	}
 	defer db.Close()
 
+	if err = database.MigrationUp(db); err != nil {
+		log.Fatalf("Can't migrate database: %s", err)
+	}
+
 	redis, err := redis.New(cfg.Redis.Host, cfg.Redis.Port)
 	if err != nil {
 		log.Fatalf("Can't initialize redis: %s", err)
