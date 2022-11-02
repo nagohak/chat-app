@@ -20,7 +20,13 @@ func main() {
 
 	auth := auth.NewAuth()
 
-	db, err := database.New(auth)
+	db, err := database.New(&database.Options{
+		Host:     cfg.Postgres.Host,
+		Port:     cfg.Postgres.Port,
+		Db:       cfg.Postgres.Db,
+		User:     cfg.Postgres.User,
+		Password: cfg.Postgres.Password,
+	}, auth)
 	if err != nil {
 		log.Fatalf("Can't initialize database: %s", err)
 	}

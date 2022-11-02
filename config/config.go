@@ -8,8 +8,9 @@ import (
 
 type (
 	Config struct {
-		Http  `yaml:"http"`
-		Redis `yaml:"redis"`
+		Http     `yaml:"http"`
+		Redis    `yaml:"redis"`
+		Postgres `yaml:"postgres"`
 	}
 	Http struct {
 		Port string `env-required:"true" yaml:"port" env:"HTTP_PORT"`
@@ -17,6 +18,13 @@ type (
 	Redis struct {
 		Host string `env-required:"true" yaml:"host" env:"REDIS_HOST"`
 		Port string `env-required:"true" yaml:"port" env:"REDIS_PORT"`
+	}
+	Postgres struct {
+		Host     string `env-required:"true" yaml:"host" env:"POSTGRES_HOST"`
+		Port     string `env-required:"true" yaml:"port" env:"POSTGRES_PORT"`
+		Db       string `env-required:"true" yaml:"db" env:"POSTGRES_DB"`
+		User     string `env-required:"true" yaml:"user" env:"POSTGRES_USER"`
+		Password string `env-required:"true" yaml:"password" env:"POSTGRES_PASSWORD"`
 	}
 )
 

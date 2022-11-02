@@ -1,6 +1,18 @@
 version: '3.5'
 
 services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'postgres'
+    ports:
+      - 5432:5432
+
   redis:
     image: "redis:alpine"
     container_name: redis
@@ -15,3 +27,6 @@ services:
       - "${HTTP_PORT}:${HTTP_PORT}"
     depends_on:
       - redis
+      - postgres
+volumes:
+  pg-data:

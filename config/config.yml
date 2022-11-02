@@ -4,3 +4,10 @@ http:
 redis:
   host: 'redis'  
   port: '6379'  
+
+postgres:
+  host: 'postgres'
+  port: 5432
+  db: 'postgres'
+  user: 'user'
+  password: 'pass'
